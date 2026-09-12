@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Evaline 2D LLM Soccer 2026 - Топ Звёзды Мира</title>
+    <title>2D LLM Soccer 2026 - World Superstars Battle</title>
     <style>
         body { background: #12121a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; margin: 0; padding: 20px; }
         h1 { margin-bottom: 4px; font-size: 26px; }
-        .match-info { color: #8bc34a; font-weight: bold; margin-bottom: 15px; }
+        .match-info { color: #38bdf8; font-weight: bold; margin-bottom: 15px; }
         #pitch-container { display: inline-block; position: relative; border: 4px solid #fff; border-radius: 12px; box-shadow: 0 0 25px rgba(0,0,0,0.8); }
         canvas { background: #1b5e20; display: block; border-radius: 8px; }
         .scoreboard { display: flex; justify-content: center; align-items: center; gap: 40px; font-size: 26px; font-weight: 800; margin-bottom: 15px; }
@@ -21,13 +21,13 @@
     </style>
 </head>
 <body>
-    <h1>⚽ EVALINE 2D LLM SOCCER (СЕЗОН 2026)</h1>
-    <div class="match-info">10 Лучших футболистов планеты 2026 года под управлением 10 бесплатных нейросетей</div>
+    <h1>⚽ 2D LLM SOCCER (WORLD STARS 2026)</h1>
+    <div class="match-info">10 Лучших футболистов мира под управлением 10 бесплатных нейросетей</div>
 
     <div class="scoreboard">
-        <span class="team-a">🔵 Черноморск: <span id="scoreA">0</span></span>
+        <span class="team-a">🔵 Team Blue: <span id="scoreA">0</span></span>
         <div class="time-box">⏱️ <span id="matchTime">00:00</span></div>
-        <span class="team-b">🔴 Братислава: <span id="scoreB">0</span></span>
+        <span class="team-b">🔴 Team Red: <span id="scoreB">0</span></span>
     </div>
 
     <div id="pitch-container">
@@ -35,15 +35,15 @@
     </div>
 
     <br><br>
-    <button onclick="startSimulation()">▶️ Запустить Матч Звёзд 2026</button>
+    <button onclick="startSimulation()">▶️ Запустить Матч Звёзд</button>
 
     <div class="log-box" id="matchLog">
-        [Матч-центр 2026] Команды выходят на поле. Эрлинг Холанд и Килиан Мбаппе готовы к битве за суперкубок Evaline!
+        [Матч-центр] Команды выходят на поле. Эрлинг Холанд и Килиан Мбаппе готовы к битве мирового уровня!
     </div>
 
     <div class="legend-table">
         <div class="legend-col">
-            <strong style="color: #38bdf8;">🔵 Черноморск (Завод ЭВА):</strong><br>
+            <strong style="color: #38bdf8;">🔵 Team Blue:</strong><br>
             • GK: Тибо Куртуа (Llama 3.1 8B)<br>
             • DEF: Вирджил Ван Дейк (Qwen 2.5 72B)<br>
             • DEF: Йошко Гвардиол (Mistral Small 24B)<br>
@@ -51,7 +51,7 @@
             • FWD: Эрлинг Холанд (Gemini 2.0 Flash)
         </div>
         <div class="legend-col">
-            <strong style="color: #f87171;">🔴 Братислава (Склад ЭВА):</strong><br>
+            <strong style="color: #f87171;">🔴 Team Red:</strong><br>
             • GK: Алиссон Бекер (DeepSeek Chat)<br>
             • DEF: Антонио Рюдигер (Qwen 2.5 Coder 32B)<br>
             • DEF: Вильям Салиба (Nemotron 70B)<br>
@@ -90,7 +90,6 @@
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
             ctx.lineWidth = 3;
 
-            // Центр поля
             ctx.beginPath();
             ctx.moveTo(W/2, 0);
             ctx.lineTo(W/2, H);
@@ -100,16 +99,13 @@
             ctx.arc(W/2, H/2, 65, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Штрафные площади
             ctx.strokeRect(0, H/4, 130, H/2);
             ctx.strokeRect(W - 130, H/4, 130, H/2);
 
-            // Ворота
             ctx.fillStyle = '#fff';
             ctx.fillRect(0, H/2 - 45, 8, 90);
             ctx.fillRect(W - 8, H/2 - 45, 8, 90);
 
-            // Игроки
             players.forEach(p => {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
@@ -128,7 +124,6 @@
                 ctx.fillText(p.name, p.x, p.y - 20);
             });
 
-            // Мяч
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, 9, 0, Math.PI * 2);
             ctx.fillStyle = '#fff';
@@ -150,7 +145,7 @@
         function startSimulation() {
             if (running) return;
             running = true;
-            logMsg("🔥 СТАРТОВЫЙ СВИСТОК! Сезон 2026 открыт.");
+            logMsg("🔥 СТАРТОВЫЙ СВИСТОК! Матч начался.");
 
             let ticker = 0;
             const interval = setInterval(() => {
@@ -175,7 +170,7 @@
                 if (ticker >= 40) {
                     clearInterval(interval);
                     running = false;
-                    logMsg("🏆 ФИНАЛЬНЫЙ СВИСТОК! Топ матч звёзд 2026 года завершён.");
+                    logMsg("🏆 ФИНАЛЬНЫЙ СВИСТОК! Топ матч звёзд завершён.");
                 }
             }, 250);
         }

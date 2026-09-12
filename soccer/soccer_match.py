@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 2D Soccer Simulation: 10 бесплатных LLM-моделей (5 vs 5)
-Звёзды мирового футбола 2026 года!
-Команда A (Синие - Завод Черноморск) vs Команда B (Красные - Склад Братислава)
+Битва мировых титанов футбола 2026 года!
+Команда A (Синие: All-Stars Premier League) vs Команда B (Красные: All-Stars Champions League)
 """
 
 import os
@@ -31,14 +31,14 @@ OPENROUTER_API_KEY = ENV.get("OPENROUTER_API_KEY", "")
 
 # 10 Бесплатных моделей для ТОП мировых звезд футбола 2026 года
 ROSTER = [
-    # КОМАНДА A: ЭВА Черноморск (Синие)
+    # КОМАНДА A: All-Stars Blue (Синие)
     {"id": "A1", "name": "Куртуа-Llama", "team": "A", "role": "Вратарь", "x": 5.0, "y": 30.0, "model": "meta-llama/llama-3.1-8b-instruct:free"},
     {"id": "A2", "name": "ВанДейк-Qwen", "team": "A", "role": "Левый защитник", "x": 25.0, "y": 18.0, "model": "qwen/qwen-2.5-72b-instruct:free"},
     {"id": "A3", "name": "Гвардиол-Mistral", "team": "A", "role": "Правый защитник", "x": 25.0, "y": 42.0, "model": "mistralai/mistral-small-24b-instruct-2501:free"},
     {"id": "A4", "name": "Родри-Llama70B", "team": "A", "role": "Опорный полузащитник", "x": 45.0, "y": 30.0, "model": "meta-llama/llama-3.3-70b-instruct:free"},
     {"id": "A5", "name": "Холанд-Gemini", "team": "A", "role": "Центральный форвард", "x": 65.0, "y": 30.0, "model": "google/gemini-2.0-flash-exp:free"},
 
-    # КОМАНДА B: ЭВА Братислава (Красные)
+    # КОМАНДА B: All-Stars Red (Красные)
     {"id": "B1", "name": "Алиссон-DeepSeek", "team": "B", "role": "Вратарь", "x": 95.0, "y": 30.0, "model": "deepseek/deepseek-chat:free"},
     {"id": "B2", "name": "Рюдигер-Coder", "team": "B", "role": "Левый защитник", "x": 75.0, "y": 18.0, "model": "qwen/qwen-2.5-coder-32b-instruct:free"},
     {"id": "B3", "name": "Салиба-Nemotron", "team": "B", "role": "Правый защитник", "x": 75.0, "y": 42.0, "model": "nvidia/llama-3.1-nemotron-70b-instruct:free"},
@@ -63,7 +63,7 @@ def query_llm_tactics(player, ball, teammates, opponents):
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
         "HTTP-Referer": "https://evaline.online",
-        "X-Title": "Evaline 2D Soccer 2026"
+        "X-Title": "World 2D Soccer 2026"
     }
     payload = {
         "model": player.model,
@@ -110,7 +110,7 @@ def render_ascii_field(ball, players, score_a, score_b, minute):
     by = max(1, min(H-2, int((ball.y / FIELD_HEIGHT) * (H-1))))
     grid[by][bx] = "⚽"
 
-    print(f"\n⏱️ МИНУТА {minute}' | ТАБЛО 2026: 🔵 Черноморск {score_a} : {score_b} Братислава 🔴")
+    print(f"\n⏱️ МИНУТА {minute}' | ТАБЛО 2026: 🔵 Team Blue {score_a} : {score_b} Team Red 🔴")
     print("-" * (W + 2))
     for row in grid:
         print("".join(row))
@@ -118,9 +118,9 @@ def render_ascii_field(ball, players, score_a, score_b, minute):
 
 def run_soccer_simulation(total_minutes=5):
     print("================================================================")
-    print("⚽ СТАРТ МАТЧА 2026: ТОП ЗВЁЗДЫ МИРА НА 10 БЕСПЛАТНЫХ LLM")
-    print("🔵 Черноморск: Холанд, Родри, Ван Дейк, Гвардиол, Куртуа")
-    print("🔴 Братислава: Мбаппе, Беллингем, Салиба, Рюдигер, Алиссон")
+    print("⚽ СТАРТ МАТЧА: МИРОВОЙ 2D SOCCER (10 БЕСПЛАТНЫХ LLM)")
+    print("🔵 Team Blue: Холанд, Родри, Ван Дейк, Гвардиол, Куртуа")
+    print("🔴 Team Red: Мбаппе, Беллингем, Салиба, Рюдигер, Алиссон")
     print("================================================================")
 
     ball = Ball(50.0, 30.0)
@@ -163,18 +163,18 @@ def run_soccer_simulation(total_minutes=5):
         goal_status = ball.check_goal()
         if goal_status == "GOAL_TEAM_A":
             score_a += 1
-            print(f"\n🎉 ГООООООООООЛ! 🔵 Команда Черноморск забивает! Автор гола: {nearest_player.name} ({nearest_player.model})!")
+            print(f"\n🎉 ГООООООООООЛ! 🔵 Team Blue забивает! Автор гола: {nearest_player.name} ({nearest_player.model})!")
             ball = Ball(50.0, 30.0)
         elif goal_status == "GOAL_TEAM_B":
             score_b += 1
-            print(f"\n🎉 ГООООООООООЛ! 🔴 Команда Братислава забивает! Автор гола: {nearest_player.name} ({nearest_player.model})!")
+            print(f"\n🎉 ГООООООООООЛ! 🔴 Team Red забивает! Автор гола: {nearest_player.name} ({nearest_player.model})!")
             ball = Ball(50.0, 30.0)
 
         render_ascii_field(ball, players, score_a, score_b, minute)
         time.sleep(1)
 
-    print("\n🏁 ФИНАЛЬНЫЙ СВИСТОК 2026!")
-    print(f"ИТОГОВЫЙ СЧЁТ: 🔵 Черноморск {score_a} : {score_b} Братислава 🔴\n")
+    print("\n🏁 ФИНАЛЬНЫЙ СВИСТОК!")
+    print(f"ИТОГОВЫЙ СЧЁТ: 🔵 Team Blue {score_a} : {score_b} Team Red 🔴\n")
 
 if __name__ == "__main__":
     run_soccer_simulation(total_minutes=5)
