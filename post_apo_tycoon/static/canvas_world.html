@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaline Post-Apo Tycoon — Infinite Living Canvas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace, -apple-system, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      user-select: none;
+    }
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #58a6ff;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+    }
+    .brand .logo {
+      background: #238636;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .resources-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+    }
+    .res-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #0d1117;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid #21262d;
+    }
+    .res-item b { font-weight: 600; }
+    .res-energy { color: #f2cc60; }
+    .res-water { color: #79c0ff; }
+    .res-food { color: #7ee787; }
+    .res-scrap { color: #d2a8ff; }
+    .res-eva { color: #ffa657; }
+    .res-pop { color: #ff7b72; }
+
+    #main-container {
+      display: flex;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #viewport-container {
+      flex: 1;
+      position: relative;
+      background: #07090e;
+    }
+    canvas#worldCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    canvas#worldCanvas:active {
+      cursor: grabbing;
+    }
+
+    /* Floating map controls */
+    .map-controls {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 5;
+    }
+    .btn {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      background: #30363d;
+      border-color: #8b949e;
+      color: #fff;
+    }
+    .btn.primary {
+      background: #238636;
+      border-color: #2ea043;
+      color: #fff;
+      font-weight: 600;
+    }
+    .btn.primary:hover {
+      background: #2ea043;
+    }
+    .btn.active {
+      background: #1f6feb;
+      border-color: #388bfd;
+      color: #fff;
+    }
+
+    /* Right Sidebar (Inspector & LLM Council) */
+    #sidebar {
+      width: 380px;
+      background: #161b22;
+      border-left: 1px solid #30363d;
+      display: flex;
+      flex-direction: column;
+      z-index: 5;
+    }
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid #30363d;
+      background: #0d1117;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      color: #8b949e;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active {
+      color: #58a6ff;
+      border-bottom-color: #58a6ff;
+      background: #161b22;
+    }
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Inspector cards */
+    .card {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .card h4 {
+      font-size: 13px;
+      color: #58a6ff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .prop-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .prop-row span.val {
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+    .progress-bar {
+      height: 6px;
+      background: #21262d;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 3px;
+      margin-bottom: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    /* LLM Council Card */
+    .agent-card {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .agent-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .agent-avatar {
+      font-size: 18px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #21262d;
+      border-radius: 6px;
+    }
+    .agent-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+    .agent-model {
+      font-size: 10px;
+      color: #8b949e;
+    }
+    .agent-quote {
+      font-size: 11px;
+      color: #c9d1d9;
+      background: #161b22;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border-left: 2px solid #238636;
+      font-style: italic;
+    }
+
+    /* Event Log */
+    .event-entry {
+      font-size: 11px;
+      padding: 6px 0;
+      border-bottom: 1px solid #21262d;
+    }
+    .event-entry:last-child { border-bottom: none; }
+    .event-tick { color: #8b949e; margin-right: 4px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="logo">EVALINE</span>
+      <span>POST-APO TYCOON: INFINITE CANVAS</span>
+    </div>
+    <div class="resources-bar" id="resources-bar">
+      <div class="res-item res-energy">⚡ <span id="res-energy">0</span></div>
+      <div class="res-item res-water">💧 <span id="res-water">0</span></div>
+      <div class="res-item res-food">🌾 <span id="res-food">0</span></div>
+      <div class="res-item res-scrap">⚒ <span id="res-scrap">0</span></div>
+      <div class="res-item res-eva">🏭 <span id="res-eva">0</span></div>
+      <div class="res-item res-pop">👥 <span id="res-pop">0</span> (Дух: <span id="res-mor">0%</span>)</div>
+    </div>
+  </header>
+
+  <div id="main-container">
+    <div id="viewport-container">
+      <canvas id="worldCanvas"></canvas>
+
+      <div class="map-controls">
+        <button class="btn primary" id="btn-tick">▶ Ход Совета (Tick + LLM)</button>
+        <button class="btn" id="btn-auto">⚡ Авто-симуляция: ВЫКЛ</button>
+        <button class="btn" id="btn-recenter">🎯 Штаб (0, 0)</button>
+        <div style="display: flex; gap: 4px;">
+          <button class="btn" id="btn-zoom-in" style="flex: 1;">🔍+</button>
+          <button class="btn" id="btn-zoom-out" style="flex: 1;">🔍-</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div class="sidebar-tabs">
+        <button class="tab-btn active" onclick="switchTab('inspector')">Инспектор Сектора</button>
+        <button class="tab-btn" onclick="switchTab('council')">Совет (5 LLM)</button>
+        <button class="tab-btn" onclick="switchTab('events')">Хроника</button>
+      </div>
+
+      <!-- Tab 1: Inspector -->
+      <div id="tab-inspector" class="tab-content active">
+        <div class="card" id="tile-card">
+          <h4>
+            <span id="insp-coords">Координаты: [0, 0]</span>
+            <span id="insp-biome" style="font-size: 11px; color: #8b949e;">ЭВА-База</span>
+          </h4>
+          
+          <div class="prop-row">
+            <span>Радиация</span>
+            <span class="val" id="insp-rad">8.0 mSv/h</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="fill-rad" style="width: 8%; background: #2ea043;"></div>
+          </div>
+
+          <div class="prop-row">
+            <span>Токсичность почв</span>
+            <span class="val" id="insp-tox">5.0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="fill-tox" style="width: 5%; background: #388bfd;"></div>
+          </div>
+
+          <div class="prop-row">
+            <span>Влажность / Плодородие</span>
+            <span class="val"><span id="insp-moist">40%</span> / <span id="insp-fert">50%</span></span>
+          </div>
+
+          <div class="prop-row">
+            <span>Строение</span>
+            <span class="val" id="insp-building">Штаб-Бункер</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Действия Архитектора</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn" id="btn-act-clear">Расчистить завалы лома</button>
+            <button class="btn" id="btn-act-explore">Разведать этот сектор (2 ⚡)</button>
+            <div style="display: flex; gap: 6px; margin-top: 4px;">
+              <select id="select-building" style="flex: 1; background: #21262d; color: #fff; border: 1px solid #30363d; border-radius: 4px; padding: 6px; font-family: inherit; font-size: 11px;">
+                <option value="solar_collector">⚡ Солнечная СЭС</option>
+                <option value="water_purifier">💧 Опреснитель</option>
+                <option value="greenhouse">🌾 ЭВА-Теплица</option>
+                <option value="decontaminator">♨ Очиститель почв</option>
+                <option value="eva_extruder">🏭 Экструдер ЭВА</option>
+                <option value="eva_barrier">🛡 ЭВА-Барьер</option>
+                <option value="research_dome">🔬 Научный Купол</option>
+              </select>
+              <button class="btn primary" id="btn-act-build">Построить</button>
+            </div>
+            <button class="btn" id="btn-act-upgrade">Улучшить строение (ур. 2+)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Council -->
+      <div id="tab-council" class="tab-content">
+        <div id="council-list">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+
+      <!-- Tab 3: Events -->
+      <div id="tab-events" class="tab-content">
+        <div id="events-list">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global Canvas & Game State
+    const canvas = document.getElementById("worldCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let camera = { x: 0, y: 0, zoom: 42 }; // Tile size in pixels
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let selectedTile = { x: 0, y: 0 };
+    let autoSimInterval = null;
+
+    let worldCache = new Map(); // "x,y" -> tile data
+    let gameState = null;
+    let particles = [];
+
+    // Resize canvas to container
+    function resizeCanvas() {
+      const container = document.getElementById("viewport-container");
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // Spawn ambient atmosphere particles (embers, radiation sparks, mist)
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * 2000 - 1000,
+        y: Math.random() * 2000 - 1000,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4 - 0.2,
+        size: Math.random() * 2.5 + 1,
+        alpha: Math.random() * 0.7 + 0.2,
+        color: Math.random() > 0.4 ? "#76ff03" : "#ffa657"
+      });
+    }
+
+    // Camera coordinate conversions
+    function screenToWorld(sx, sy) {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const wx = Math.floor((sx - cx) / camera.zoom + camera.x);
+      const wy = Math.floor((sy - cy) / camera.zoom + camera.y);
+      return { x: wx, y: wy };
+    }
+
+    function worldToScreen(wx, wy) {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const sx = (wx - camera.x) * camera.zoom + cx;
+      const sy = (wy - camera.y) * camera.zoom + cy;
+      return { x: sx, y: sy };
+    }
+
+    // Fetch viewport tiles from server
+    async function fetchViewport() {
+      const halfW = Math.ceil((canvas.width / camera.zoom) / 2) + 2;
+      const halfH = Math.ceil((canvas.height / camera.zoom) / 2) + 2;
+      const minX = Math.floor(camera.x) - halfW;
+      const minY = Math.floor(camera.y) - halfH;
+      const w = halfW * 2;
+      const h = halfH * 2;
+
+      try {
+        const resp = await fetch(`/api/viewport?min_x=${minX}&min_y=${minY}&w=${w}&h=${h}`);
+        const data = await resp.json();
+        data.tiles.forEach(t => {
+          worldCache.set(`${t.x},${t.y}`, t);
+        });
+      } catch (e) {
+        console.error("Fetch viewport error:", e);
+      }
+    }
+
+    // Fetch game state
+    async function fetchState() {
+      try {
+        const resp = await fetch("/api/state");
+        gameState = await resp.json();
+        updateUI();
+      } catch (e) {
+        console.error("Fetch state error:", e);
+      }
+    }
+
+    function updateUI() {
+      if (!gameState) return;
+      const r = gameState.sim.resources;
+      document.getElementById("res-energy").innerText = Math.round(r.energy);
+      document.getElementById("res-water").innerText = Math.round(r.water);
+      document.getElementById("res-food").innerText = Math.round(r.food);
+      document.getElementById("res-scrap").innerText = Math.round(r.scrap);
+      document.getElementById("res-eva").innerText = Math.round(r.eva_polymer);
+      document.getElementById("res-pop").innerText = r.population;
+      document.getElementById("res-mor").innerText = Math.round(r.morality) + "%";
+
+      // Update Council List
+      const councilList = document.getElementById("council-list");
+      councilList.innerHTML = "";
+      for (const [key, m] of Object.entries(gameState.ministries)) {
+        const dec = (gameState.decisions || []).slice().reverse().find(d => d.agent_id === key);
+        const card = document.createElement("div");
+        card.className = "agent-card";
+        card.innerHTML = `
+          <div class="agent-header">
+            <div class="agent-avatar">${m.avatar}</div>
+            <div>
+              <div class="agent-name">${m.title}</div>
+              <div class="agent-model">${m.model}</div>
+            </div>
+          </div>
+          <div class="agent-quote">
+            ${dec ? `[Ход -> ${dec.action} @ ${dec.target}]: "${dec.rationale}"` : `Фокус: ${m.focus}`}
+          </div>
+        `;
+        councilList.appendChild(card);
+      }
+
+      // Update Event List
+      const eventsList = document.getElementById("events-list");
+      eventsList.innerHTML = "";
+      (gameState.sim.recent_events || []).slice().reverse().forEach(evt => {
+        const item = document.createElement("div");
+        item.className = "event-entry";
+        item.innerHTML = `<span class="event-tick">[${evt.tick}]</span> ${evt.message}`;
+        eventsList.appendChild(item);
+      });
+
+      // Update inspector for selected tile
+      updateInspector();
+    }
+
+    function updateInspector() {
+      const t = worldCache.get(`${selectedTile.x},${selectedTile.y}`);
+      if (!t) return;
+      document.getElementById("insp-coords").innerText = `Координаты: [${t.x}, ${t.y}]`;
+      document.getElementById("insp-biome").innerText = t.biome_name;
+      document.getElementById("insp-rad").innerText = `${t.radiation} mSv/h`;
+      document.getElementById("insp-tox").innerText = `${t.toxicity}%`;
+      document.getElementById("insp-moist").innerText = `${t.moisture}%`;
+      document.getElementById("insp-fert").innerText = `${t.fertility}%`;
+
+      const radPct = Math.min(100, (t.radiation / 100) * 100);
+      const fillRad = document.getElementById("fill-rad");
+      fillRad.style.width = radPct + "%";
+      fillRad.style.background = t.radiation > 60 ? "#f85149" : (t.radiation > 30 ? "#d29922" : "#2ea043");
+
+      const bName = t.building_name ? `${t.building_name} (ур. ${t.building_level})` : (t.rubble ? "Завалы токсичного лома" : "Свободно под застройку");
+      document.getElementById("insp-building").innerText = bName;
+    }
+
+    // 2D Procedural Vector Drawing of Tiles
+    function drawWorld() {
+      ctx.fillStyle = "#07090e";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const halfW = Math.ceil((canvas.width / camera.zoom) / 2) + 1;
+      const halfH = Math.ceil((canvas.height / camera.zoom) / 2) + 1;
+      const minX = Math.floor(camera.x) - halfW;
+      const maxX = Math.floor(camera.x) + halfW;
+      const minY = Math.floor(camera.y) - halfH;
+      const maxY = Math.floor(camera.y) + halfH;
+
+      const timeNow = performance.now() * 0.002;
+
+      for (let y = minY; y <= maxY; y++) {
+        for (let x = minX; x <= maxX; x++) {
+          const s = worldToScreen(x, y);
+          const t = worldCache.get(`${x},${y}`);
+
+          if (!t || !t.explored) {
+            // Fog of War
+            ctx.fillStyle = "#0b0e14";
+            ctx.fillRect(s.x, s.y, camera.zoom, camera.zoom);
+            ctx.strokeStyle = "#161b22";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(s.x, s.y, camera.zoom, camera.zoom);
+            continue;
+          }
+
+          // Base Biome Tile Fill
+          ctx.fillStyle = t.color || "#333";
+          ctx.fillRect(s.x, s.y, camera.zoom, camera.zoom);
+
+          // Biome Details drawn purely with code
+          if (t.biome === "radioactive_crater") {
+            const glow = (Math.sin(timeNow * 2 + x + y) + 1) * 0.2 + 0.4;
+            ctx.fillStyle = `rgba(118, 255, 3, ${glow})`;
+            ctx.beginPath();
+            ctx.arc(s.x + camera.zoom/2, s.y + camera.zoom/2, camera.zoom * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (t.biome === "clean_spring" || t.biome === "toxic_marsh") {
+            // Ripple wave effect
+            ctx.strokeStyle = t.biome === "clean_spring" ? "rgba(255,255,255,0.4)" : "rgba(0,255,100,0.3)";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            const waveY = s.y + camera.zoom/2 + Math.sin(timeNow + x) * 3;
+            ctx.moveTo(s.x + 4, waveY);
+            ctx.lineTo(s.x + camera.zoom - 4, waveY);
+            ctx.stroke();
+          } else if (t.biome === "regrown_forest") {
+            // Green foliage dot
+            ctx.fillStyle = "#1b5e20";
+            ctx.beginPath();
+            ctx.arc(s.x + camera.zoom * 0.3, s.y + camera.zoom * 0.4, camera.zoom * 0.2, 0, Math.PI * 2);
+            ctx.arc(s.x + camera.zoom * 0.7, s.y + camera.zoom * 0.6, camera.zoom * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Rubble Indicator
+          if (t.rubble) {
+            ctx.fillStyle = "rgba(40, 40, 40, 0.8)";
+            ctx.fillRect(s.x + camera.zoom * 0.2, s.y + camera.zoom * 0.2, camera.zoom * 0.6, camera.zoom * 0.6);
+            ctx.strokeStyle = "#8b949e";
+            ctx.strokeRect(s.x + camera.zoom * 0.2, s.y + camera.zoom * 0.2, camera.zoom * 0.6, camera.zoom * 0.6);
+          }
+
+          // Building Vector Drawing
+          if (t.building) {
+            drawBuildingVector(ctx, s.x, s.y, camera.zoom, t.building, timeNow);
+          }
+
+          // Grid wireframe
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(s.x, s.y, camera.zoom, camera.zoom);
+
+          // Selection border
+          if (x === selectedTile.x && y === selectedTile.y) {
+            ctx.strokeStyle = "#58a6ff";
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(s.x + 1, s.y + 1, camera.zoom - 2, camera.zoom - 2);
+          }
+        }
+      }
+
+      // Render Floating Atmospheric Particles
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        const ps = worldToScreen(p.x, p.y);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(ps.x, ps.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      });
+
+      requestAnimationFrame(drawWorld);
+    }
+
+    // Pure code procedural vector drawing of buildings
+    function drawBuildingVector(ctx, sx, sy, size, type, timeNow) {
+      const cx = sx + size / 2;
+      const cy = sy + size / 2;
+
+      if (type === "bunker_hq") {
+        // Bunker Dome
+        ctx.fillStyle = "#484f58";
+        ctx.beginPath();
+        ctx.arc(cx, cy + size * 0.1, size * 0.35, Math.PI, 0);
+        ctx.fill();
+        ctx.strokeStyle = "#30363d";
+        ctx.stroke();
+        // Yellow entrance hatch
+        ctx.fillStyle = "#f2cc60";
+        ctx.fillRect(cx - size * 0.1, cy, size * 0.2, size * 0.15);
+      } else if (type === "solar_collector") {
+        // Photovoltaic Panels
+        ctx.fillStyle = "#1f6feb";
+        ctx.fillRect(cx - size * 0.35, cy - size * 0.3, size * 0.7, size * 0.6);
+        ctx.strokeStyle = "#79c0ff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - size * 0.35, cy - size * 0.3, size * 0.7, size * 0.6);
+      } else if (type === "water_purifier") {
+        // Cylindrical tank
+        ctx.fillStyle = "#388bfd";
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.28, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.stroke();
+      } else if (type === "decontaminator") {
+        // Rotating decontamination field
+        ctx.strokeStyle = "#76ff03";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.32, timeNow * 3, timeNow * 3 + Math.PI * 1.5);
+        ctx.stroke();
+        ctx.fillStyle = "#238636";
+        ctx.fillRect(cx - size * 0.15, cy - size * 0.15, size * 0.3, size * 0.3);
+      } else if (type === "greenhouse") {
+        // Glass biodome
+        ctx.fillStyle = "rgba(126, 231, 135, 0.4)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#2ea043";
+        ctx.stroke();
+      } else if (type === "eva_extruder") {
+        // Industrial extruder silhouette with roll of EVA sheet
+        ctx.fillStyle = "#d29922";
+        ctx.fillRect(cx - size * 0.3, cy - size * 0.2, size * 0.6, size * 0.4);
+        ctx.fillStyle = "#ffa657";
+        ctx.beginPath();
+        ctx.arc(cx + size * 0.2, cy, size * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (type === "eva_barrier") {
+        // Glowing energy shield
+        ctx.strokeStyle = "#ffa657";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.4, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (type === "research_dome") {
+        // Geodesic lab with pulse core
+        ctx.fillStyle = "#bc8cff";
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#d2a8ff";
+        ctx.stroke();
+      }
+    }
+
+    // Mouse Interaction (Pan, Zoom, Select)
+    canvas.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      dragStart = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const dx = (e.clientX - dragStart.x) / camera.zoom;
+      const dy = (e.clientY - dragStart.y) / camera.zoom;
+      camera.x -= dx;
+      camera.y -= dy;
+      dragStart = { x: e.clientX, y: e.clientY };
+      fetchViewport();
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+      camera.zoom = Math.max(16, Math.min(100, camera.zoom * zoomFactor));
+      fetchViewport();
+    });
+
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const worldPos = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+      selectedTile = worldPos;
+      updateInspector();
+    });
+
+    // Sidebar Tab Switching
+    window.switchTab = function(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      event.target.classList.add("active");
+      document.getElementById(`tab-${tabId}`).classList.add("active");
+    };
+
+    // Button Event Handlers
+    document.getElementById("btn-tick").addEventListener("click", async () => {
+      const resp = await fetch("/api/tick", { method: "POST" });
+      await fetchState();
+      await fetchViewport();
+    });
+
+    document.getElementById("btn-auto").addEventListener("click", () => {
+      const btn = document.getElementById("btn-auto");
+      if (autoSimInterval) {
+        clearInterval(autoSimInterval);
+        autoSimInterval = null;
+        btn.innerText = "⚡ Авто-симуляция: ВЫКЛ";
+        btn.classList.remove("active");
+      } else {
+        autoSimInterval = setInterval(async () => {
+          await fetch("/api/tick", { method: "POST" });
+          await fetchState();
+          await fetchViewport();
+        }, 1500);
+        btn.innerText = "⚡ Авто-симуляция: ВКЛ (1.5с)";
+        btn.classList.add("active");
+      }
+    });
+
+    document.getElementById("btn-recenter").addEventListener("click", () => {
+      camera.x = 0;
+      camera.y = 0;
+      camera.zoom = 42;
+      fetchViewport();
+    });
+
+    document.getElementById("btn-zoom-in").addEventListener("click", () => {
+      camera.zoom = Math.min(100, camera.zoom * 1.25);
+      fetchViewport();
+    });
+    document.getElementById("btn-zoom-out").addEventListener("click", () => {
+      camera.zoom = Math.max(16, camera.zoom * 0.8);
+      fetchViewport();
+    });
+
+    // Player Actions
+    async function sendAction(act, extra = {}) {
+      await fetch("/api/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: act, x: selectedTile.x, y: selectedTile.y, ...extra })
+      });
+      await fetchState();
+      await fetchViewport();
+    }
+
+    document.getElementById("btn-act-clear").addEventListener("click", () => sendAction("clear"));
+    document.getElementById("btn-act-explore").addEventListener("click", () => sendAction("explore"));
+    document.getElementById("btn-act-build").addEventListener("click", () => {
+      const btype = document.getElementById("select-building").value;
+      sendAction("build", { building_type: btype });
+    });
+    document.getElementById("btn-act-upgrade").addEventListener("click", () => sendAction("upgrade"));
+
+    // Initial Load & Animation Loop
+    async function init() {
+      await fetchViewport();
+      await fetchState();
+      requestAnimationFrame(drawWorld);
+    }
+    init();
+  </script>
+</body>
+</html>
