@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Evaline 2D LLM Soccer - 10 Бесплатных Моделей</title>
+    <style>
+        body { background: #1a1a24; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
+        h1 { margin-bottom: 5px; }
+        .match-info { color: #aaa; margin-bottom: 15px; }
+        #pitch-container { display: inline-block; position: relative; border: 3px solid #fff; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.6); }
+        canvas { background: #2e7d32; display: block; }
+        .scoreboard { display: flex; justify-content: center; gap: 40px; font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+        .team-a { color: #42a5f5; }
+        .team-b { color: #ef5350; }
+        .log-box { width: 800px; max-width: 90%; height: 120px; margin: 15px auto; background: #111; border: 1px solid #333; border-radius: 4px; padding: 10px; text-align: left; font-family: monospace; font-size: 13px; overflow-y: auto; color: #76ff03; }
+        button { background: #ff9800; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; color: #000; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #ffa726; }
+    </style>
+</head>
+<body>
+    <h1>⚽ EVALINE 2D LLM SOCCER</h1>
+    <div class="match-info">10 Бесплатных Нейросетей в реальном матче 5 vs 5</div>
+
+    <div class="scoreboard">
+        <span class="team-a">🔵 Черноморск: <span id="scoreA">0</span></span>
+        <span>⏱️ <span id="matchTime">00:00</span></span>
+        <span class="team-b">🔴 Братислава: <span id="scoreB">0</span></span>
+    </div>
+
+    <div id="pitch-container">
+        <canvas id="pitch" width="800" height="480"></canvas>
+    </div>
+
+    <br><br>
+    <button onclick="startSimulation()">▶️ Запустить Симуляцию Матча</button>
+
+    <div class="log-box" id="matchLog">
+        [Система] Игра готова к запуску. 10 LLM моделей ждут стартового свистка...
+    </div>
+
+    <script>
+        const canvas = document.getElementById('pitch');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+
+        let ball = { x: W/2, y: H/2, vx: 0, vy: 0 };
+        let players = [
+            // Команда A (Синие)
+            { id: 'A1', name: 'Яшин (Llama 8B)', team: 'A', role: 'GK', x: 40, y: H/2, color: '#1976d2' },
+            { id: 'A2', name: 'Барези (Qwen 72B)', team: 'A', role: 'DEF', x: 180, y: H/3, color: '#42a5f5' },
+            { id: 'A3', name: 'Мальдини (Mistral 24B)', team: 'A', role: 'DEF', x: 180, y: (2*H)/3, color: '#42a5f5' },
+            { id: 'A4', name: 'Зидан (Llama 70B)', team: 'A', role: 'MID', x: 320, y: H/2, color: '#64b5f6' },
+            { id: 'A5', name: 'Шевченко (Gemini Flash)', team: 'A', role: 'FWD', x: 450, y: H/2, color: '#90caf9' },
+
+            // Команда B (Красные)
+            { id: 'B1', name: 'Буффон (DeepSeek)', team: 'B', role: 'GK', x: W - 40, y: H/2, color: '#c62828' },
+            { id: 'B2', name: 'Рамос (Qwen Coder)', team: 'B', role: 'DEF', x: W - 180, y: H/3, color: '#ef5350' },
+            { id: 'B3', name: 'Пуйоль (Nemotron)', team: 'B', role: 'DEF', x: W - 180, y: (2*H)/3, color: '#ef5350' },
+            { id: 'B4', name: 'Хави (DeepSeek R1)', team: 'B', role: 'MID', x: W - 320, y: H/2, color: '#e57373' },
+            { id: 'B5', name: 'Роналдо (Hermes 405B)', team: 'B', role: 'FWD', x: W - 450, y: H/2, color: '#ef9a9a' }
+        ];
+
+        function drawPitch() {
+            // Трава
+            ctx.fillStyle = '#2e7d32';
+            ctx.fillRect(0, 0, W, H);
+
+            // Разметка
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 3;
+
+            // Центр поля
+            ctx.beginPath();
+            ctx.moveTo(W/2, 0);
+            ctx.lineTo(W/2, H);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(W/2, H/2, 60, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Штрафные площади
+            ctx.strokeRect(0, H/4, 120, H/2);
+            ctx.strokeRect(W - 120, H/4, 120, H/2);
+
+            // Ворота
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, H/2 - 40, 8, 80);
+            ctx.fillRect(W - 8, H/2 - 40, 8, 80);
+
+            // Игроки
+            players.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(p.id, p.x, p.y + 4);
+
+                ctx.font = '10px sans-serif';
+                ctx.fillText(p.role, p.x, p.y - 18);
+            });
+
+            // Мяч
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        drawPitch();
+
+        let running = false;
+        function logMsg(msg) {
+            const el = document.getElementById('matchLog');
+            el.innerHTML += '<br>' + msg;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function startSimulation() {
+            if (running) return;
+            running = true;
+            logMsg("🔔 МАТЧ НАЧАЛСЯ! Мяч разыгран в центре поля.");
+
+            let ticker = 0;
+            const interval = setInterval(() => {
+                ticker++;
+                // Имитация физики и перемещений
+                ball.x += (Math.random() - 0.5) * 20;
+                ball.y += (Math.random() - 0.5) * 15;
+                ball.x = Math.max(20, Math.min(W - 20, ball.x));
+                ball.y = Math.max(20, Math.min(H - 20, ball.y));
+
+                // Игроки подтягиваются к мячу
+                players.forEach(p => {
+                    p.x += (ball.x - p.x) * 0.05 + (Math.random() - 0.5) * 5;
+                    p.y += (ball.y - p.y) * 0.05 + (Math.random() - 0.5) * 5;
+                });
+
+                drawPitch();
+
+                if (ticker % 10 === 0) {
+                    const randomPlayer = players[Math.floor(Math.random() * players.length)];
+                    logMsg(`⏱️ ${Math.floor(ticker/5)}' | ${randomPlayer.name} выполняет отбор и делает точную передачу на ход!`);
+                }
+
+                if (ticker >= 50) {
+                    clearInterval(interval);
+                    running = false;
+                    logMsg("🏁 МАТЧ ОКОНЧЕН! Свисток арбитра. Игроки обмениваются рукопожатиями.");
+                }
+            }, 200);
+        }
+    </script>
+</body>
+</html>
