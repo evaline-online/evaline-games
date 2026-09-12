@@ -2,178 +2,379 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>2D LLM Soccer 2026 - World Superstars Battle</title>
+    <title>2D LLM Soccer 2026 - Realtime 60 FPS Canvas Simulation</title>
     <style>
-        body { background: #12121a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; margin: 0; padding: 20px; }
-        h1 { margin-bottom: 4px; font-size: 26px; }
-        .match-info { color: #38bdf8; font-weight: bold; margin-bottom: 15px; }
-        #pitch-container { display: inline-block; position: relative; border: 4px solid #fff; border-radius: 12px; box-shadow: 0 0 25px rgba(0,0,0,0.8); }
-        canvas { background: #1b5e20; display: block; border-radius: 8px; }
-        .scoreboard { display: flex; justify-content: center; align-items: center; gap: 40px; font-size: 26px; font-weight: 800; margin-bottom: 15px; }
-        .team-a { color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5); }
-        .team-b { color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,0.5); }
-        .time-box { background: #222; padding: 4px 16px; border-radius: 8px; border: 1px solid #444; font-size: 20px; }
-        .log-box { width: 840px; max-width: 95%; height: 140px; margin: 15px auto; background: #0a0a0f; border: 1px solid #333; border-radius: 6px; padding: 12px; text-align: left; font-family: monospace; font-size: 13px; overflow-y: auto; color: #4ade80; line-height: 1.5; }
-        button { background: #f59e0b; border: none; padding: 12px 28px; font-size: 17px; font-weight: bold; color: #000; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        button:hover { background: #fbbf24; transform: scale(1.03); }
-        .legend-table { display: flex; justify-content: center; gap: 30px; margin-top: 15px; font-size: 13px; color: #ccc; }
-        .legend-col { text-align: left; background: #181824; padding: 10px 18px; border-radius: 8px; border: 1px solid #2a2a3c; }
+        * { box-sizing: border-box; }
+        body { background: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; margin: 0; padding: 20px; }
+        h1 { margin: 0 0 5px 0; font-size: 26px; letter-spacing: 1px; }
+        .subtitle { color: #38bdf8; font-size: 14px; margin-bottom: 15px; font-weight: 600; }
+        
+        .match-card {
+            display: inline-block;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 840px;
+            margin: 0 auto 12px auto;
+            padding: 10px 20px;
+            background: #090d16;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            font-weight: 800;
+        }
+        .team-blue { color: #38bdf8; font-size: 22px; display: flex; align-items: center; gap: 8px; }
+        .team-red { color: #f87171; font-size: 22px; display: flex; align-items: center; gap: 8px; }
+        .match-time { background: #1e293b; padding: 4px 12px; border-radius: 6px; font-size: 18px; color: #fbbf24; border: 1px solid #475569; }
+
+        #pitch-wrap { position: relative; width: 840px; height: 500px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: inset 0 0 40px rgba(0,0,0,0.6); }
+        canvas { background: #15803d; display: block; }
+
+        .controls { margin-top: 15px; display: flex; justify-content: center; gap: 15px; align-items: center; }
+        button {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(14,165,233,0.3);
+            transition: all 0.2s;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(14,165,233,0.4); }
+        button:disabled { background: #475569; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .log-box {
+            width: 840px;
+            margin: 15px auto 0 auto;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            height: 120px;
+            padding: 10px 14px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            color: #4ade80;
+            line-height: 1.6;
+        }
+        .ai-badge { color: #f59e0b; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>⚽ 2D LLM SOCCER (WORLD STARS 2026)</h1>
-    <div class="match-info">10 Лучших футболистов мира под управлением 10 бесплатных нейросетей</div>
 
-    <div class="scoreboard">
-        <span class="team-a">🔵 Team Blue: <span id="scoreA">0</span></span>
-        <div class="time-box">⏱️ <span id="matchTime">00:00</span></div>
-        <span class="team-b">🔴 Team Red: <span id="scoreB">0</span></span>
-    </div>
+    <h1>⚽ 2D LLM SOCCER: 60 FPS REAL-TIME</h1>
+    <div class="subtitle">Симуляция физики Ньютона + Тактический интеллект 10 бесплатных LLM моделей</div>
 
-    <div id="pitch-container">
-        <canvas id="pitch" width="840" height="500"></canvas>
-    </div>
-
-    <br><br>
-    <button onclick="startSimulation()">▶️ Запустить Матч Звёзд</button>
-
-    <div class="log-box" id="matchLog">
-        [Матч-центр] Команды выходят на поле. Эрлинг Холанд и Килиан Мбаппе готовы к битве мирового уровня!
-    </div>
-
-    <div class="legend-table">
-        <div class="legend-col">
-            <strong style="color: #38bdf8;">🔵 Team Blue:</strong><br>
-            • GK: Тибо Куртуа (Llama 3.1 8B)<br>
-            • DEF: Вирджил Ван Дейк (Qwen 2.5 72B)<br>
-            • DEF: Йошко Гвардиол (Mistral Small 24B)<br>
-            • MID: Родри (Llama 3.3 70B)<br>
-            • FWD: Эрлинг Холанд (Gemini 2.0 Flash)
+    <div class="match-card">
+        <div class="scoreboard">
+            <div class="team-blue">🔵 TEAM BLUE <span id="scoreA">0</span></div>
+            <div class="match-time">⏱️ <span id="matchMin">00</span>:<span id="matchSec">00</span></div>
+            <div class="team-red"><span id="scoreB">0</span> TEAM RED 🔴</div>
         </div>
-        <div class="legend-col">
-            <strong style="color: #f87171;">🔴 Team Red:</strong><br>
-            • GK: Алиссон Бекер (DeepSeek Chat)<br>
-            • DEF: Антонио Рюдигер (Qwen 2.5 Coder 32B)<br>
-            • DEF: Вильям Салиба (Nemotron 70B)<br>
-            • MID: Джуд Беллингем (DeepSeek R1)<br>
-            • FWD: Килиан Мбаппе (Hermes 3 405B)
+
+        <div id="pitch-wrap">
+            <canvas id="canvas" width="840" height="500"></canvas>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn" onclick="toggleMatch()">▶️ Начать Матч Реал-Тайм</button>
+            <button onclick="resetPitch()">🔄 Сбросить Мяч в Центр</button>
+        </div>
+
+        <div class="log-box" id="matchLog">
+            [Система] Движок 60 FPS Canvas готов. Нажмите "Начать Матч Реал-Тайм".
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('pitch');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const W = canvas.width;
         const H = canvas.height;
 
-        let ball = { x: W/2, y: H/2, vx: 0, vy: 0 };
-        let players = [
+        // Физика мяча
+        let ball = {
+            x: W / 2,
+            y: H / 2,
+            vx: 0,
+            vy: 0,
+            radius: 8,
+            friction: 0.985
+        };
+
+        let scoreA = 0;
+        let scoreB = 0;
+        let matchActive = false;
+        let matchSeconds = 0;
+
+        // Состав игроков
+        const players = [
             // Команда A (Синие)
-            { id: 'A1', name: 'Куртуа', role: 'GK', x: 45, y: H/2, color: '#0284c7' },
-            { id: 'A2', name: 'Ван Дейк', role: 'DEF', x: 200, y: H/3, color: '#38bdf8' },
-            { id: 'A3', name: 'Гвардиол', role: 'DEF', x: 200, y: (2*H)/3, color: '#38bdf8' },
-            { id: 'A4', name: 'Родри', role: 'MID', x: 360, y: H/2, color: '#0ea5e9' },
-            { id: 'A5', name: 'Холанд', role: 'FWD', x: 500, y: H/2, color: '#7dd3fc' },
+            { id: 'A1', name: 'Куртуа', role: 'GK', team: 'A', x: 50, y: H/2, homeX: 50, homeY: H/2, color: '#0284c7', speed: 2.2 },
+            { id: 'A2', name: 'Ван Дейк', role: 'DEF', team: 'A', x: 220, y: H/3, homeX: 220, homeY: H/3, color: '#38bdf8', speed: 2.5 },
+            { id: 'A3', name: 'Гвардиол', role: 'DEF', team: 'A', x: 220, y: (2*H)/3, homeX: 220, homeY: (2*H)/3, color: '#38bdf8', speed: 2.7 },
+            { id: 'A4', name: 'Родри', role: 'MID', team: 'A', x: 380, y: H/2, homeX: 380, homeY: H/2, color: '#0ea5e9', speed: 2.8 },
+            { id: 'A5', name: 'Холанд', role: 'FWD', team: 'A', x: 540, y: H/2, homeX: 540, homeY: H/2, color: '#7dd3fc', speed: 3.2 },
 
             // Команда B (Красные)
-            { id: 'B1', name: 'Алиссон', role: 'GK', x: W - 45, y: H/2, color: '#b91c1c' },
-            { id: 'B2', name: 'Рюдигер', role: 'DEF', x: W - 200, y: H/3, color: '#f87171' },
-            { id: 'B3', name: 'Салиба', role: 'DEF', x: W - 200, y: (2*H)/3, color: '#f87171' },
-            { id: 'B4', name: 'Беллингем', role: 'MID', x: W - 360, y: H/2, color: '#ef4444' },
-            { id: 'B5', name: 'Мбаппе', role: 'FWD', x: W - 500, y: H/2, color: '#fca5a5' }
+            { id: 'B1', name: 'Алиссон', role: 'GK', team: 'B', x: W - 50, y: H/2, homeX: W - 50, homeY: H/2, color: '#b91c1c', speed: 2.2 },
+            { id: 'B2', name: 'Рюдигер', role: 'DEF', team: 'B', x: W - 220, y: H/3, homeX: W - 220, homeY: H/3, color: '#f87171', speed: 2.9 },
+            { id: 'B3', name: 'Салиба', role: 'DEF', team: 'B', x: W - 220, y: (2*H)/3, homeX: W - 220, homeY: (2*H)/3, color: '#f87171', speed: 2.7 },
+            { id: 'B4', name: 'Беллингем', role: 'MID', team: 'B', x: W - 380, y: H/2, homeX: W - 380, homeY: H/2, color: '#ef4444', speed: 3.0 },
+            { id: 'B5', name: 'Мбаппе', role: 'FWD', team: 'B', x: W - 540, y: H/2, homeX: W - 540, homeY: H/2, color: '#fca5a5', speed: 3.4 }
         ];
 
-        function drawPitch() {
-            ctx.fillStyle = '#1b5e20';
+        function log(msg) {
+            const el = document.getElementById('matchLog');
+            el.innerHTML += '<br>' + msg;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function resetPitch() {
+            ball.x = W / 2;
+            ball.y = H / 2;
+            ball.vx = 0;
+            ball.vy = 0;
+            players.forEach(p => {
+                p.x = p.homeX;
+                p.y = p.homeY;
+            });
+        }
+
+        function toggleMatch() {
+            matchActive = !matchActive;
+            const btn = document.getElementById('startBtn');
+            if (matchActive) {
+                btn.innerText = '⏸️ Пауза';
+                btn.style.background = '#eab308';
+                log("⚡ Матч запущен! Игроки перемещаются в реальном времени.");
+            } else {
+                btn.innerText = '▶️ Продолжить';
+                btn.style.background = '#0ea5e9';
+                log("⏸️ Пауза в матче.");
+            }
+        }
+
+        // Таймер матча
+        setInterval(() => {
+            if (matchActive) {
+                matchSeconds++;
+                const m = String(Math.floor(matchSeconds / 60)).padStart(2, '0');
+                const s = String(matchSeconds % 60).padStart(2, '0');
+                document.getElementById('matchMin').innerText = m;
+                document.getElementById('matchSec').innerText = s;
+            }
+        }, 1000);
+
+        // Интеллект LLM (опрос каждые 2 секунды)
+        let lastLlmCheck = 0;
+        function updateTactics() {
+            if (!matchActive) return;
+            const now = Date.now();
+            if (now - lastLlmCheck < 2000) return;
+            lastLlmCheck = now;
+
+            // Находим игрока с мячом (дистанция < 25px)
+            let ballCarrier = players.find(p => Math.hypot(p.x - ball.x, p.y - ball.y) < 25);
+            if (ballCarrier) {
+                // Запрос к бэкенду LLM
+                fetch('/api/tactics', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_id: ballCarrier.id,
+                        state: { ball: [Math.round(ball.x), Math.round(ball.y)], me: [Math.round(ballCarrier.x), Math.round(ballCarrier.y)] }
+                    })
+                })
+                .then(r => r.json())
+                .then(decision => {
+                    log(`<span class="ai-badge">[LLM Тактика]</span> ${ballCarrier.name} (${ballCarrier.id}) выбирает: <strong>${decision.action.toUpperCase()}</strong> сила: ${decision.power}%`);
+                    
+                    const angle = Math.atan2(decision.target[1] - ball.y, decision.target[0] - ball.x);
+                    const speed = (decision.power / 100) * 12;
+                    ball.vx = Math.cos(angle) * speed;
+                    ball.vy = Math.sin(angle) * speed;
+                })
+                .catch(() => {
+                    // Локальный физический удар если сервер оффлайн
+                    const targetX = ballCarrier.team === 'A' ? W - 10 : 10;
+                    const angle = Math.atan2(H/2 - ball.y, targetX - ball.x);
+                    ball.vx = Math.cos(angle) * 10;
+                    ball.vy = Math.sin(angle) * 10;
+                });
+            }
+        }
+
+        // Физический цикл (60 FPS)
+        function updatePhysics() {
+            if (matchActive) {
+                // 1. Движение мяча
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+                ball.vx *= ball.friction;
+                ball.vy *= ball.friction;
+
+                if (Math.abs(ball.vx) < 0.05) ball.vx = 0;
+                if (Math.abs(ball.vy) < 0.05) ball.vy = 0;
+
+                // Отскок от верхнего/нижнего борта
+                if (ball.y < 12) { ball.y = 12; ball.vy = -ball.vy * 0.8; }
+                if (ball.y > H - 12) { ball.y = H - 12; ball.vy = -ball.vy * 0.8; }
+
+                // Проверка ГОЛА
+                if (ball.x <= 15 && ball.y >= H/2 - 50 && ball.y <= H/2 + 50) {
+                    scoreB++;
+                    document.getElementById('scoreB').innerText = scoreB;
+                    log(`⚽ ГООООООООЛ! Team Red забивает мяч в сетку! (${scoreA}:${scoreB})`);
+                    resetPitch();
+                } else if (ball.x >= W - 15 && ball.y >= H/2 - 50 && ball.y <= H/2 + 50) {
+                    scoreA++;
+                    document.getElementById('scoreA').innerText = scoreA;
+                    log(`⚽ ГООООООООЛ! Team Blue забивает мяч в сетку! (${scoreA}:${scoreB})`);
+                    resetPitch();
+                }
+
+                // Боковые линии вне ворот
+                if (ball.x < 12 && (ball.y < H/2 - 50 || ball.y > H/2 + 50)) {
+                    ball.x = 12; ball.vx = -ball.vx * 0.8;
+                }
+                if (ball.x > W - 12 && (ball.y < H/2 - 50 || ball.y > H/2 + 50)) {
+                    ball.x = W - 12; ball.vx = -ball.vx * 0.8;
+                }
+
+                // 2. Движение игроков
+                players.forEach(p => {
+                    let targetX = p.homeX;
+                    let targetY = p.homeY;
+
+                    // Если мяч близко к зоне игрока — бежим на перехват
+                    let distToBall = Math.hypot(p.x - ball.x, p.y - ball.y);
+                    if (distToBall < 180) {
+                        targetX = ball.x;
+                        targetY = ball.y;
+                    }
+
+                    let dx = targetX - p.x;
+                    let dy = targetY - p.y;
+                    let d = Math.hypot(dx, dy);
+                    if (d > 2) {
+                        p.x += (dx / d) * p.speed;
+                        p.y += (dy / d) * p.speed;
+                    }
+
+                    // Отбор мяча (касание)
+                    if (distToBall < 18) {
+                        let kickDir = p.team === 'A' ? 1 : -1;
+                        ball.vx += kickDir * 2.5 + (Math.random() - 0.5) * 2;
+                        ball.vy += (Math.random() - 0.5) * 3;
+                    }
+                });
+
+                updateTactics();
+            }
+        }
+
+        function render() {
+            // Фон газона
+            ctx.fillStyle = '#166534';
             ctx.fillRect(0, 0, W, H);
 
+            // Полосы травы
+            ctx.fillStyle = '#15803d';
+            for (let i = 0; i < W; i += 70) {
+                if ((i / 70) % 2 === 0) {
+                    ctx.fillRect(i, 0, 70, H);
+                }
+            }
+
+            // Разметка
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
             ctx.lineWidth = 3;
 
+            // Внешняя линия
+            ctx.strokeRect(10, 10, W - 20, H - 20);
+
+            // Центр поля
             ctx.beginPath();
-            ctx.moveTo(W/2, 0);
-            ctx.lineTo(W/2, H);
+            ctx.moveTo(W/2, 10);
+            ctx.lineTo(W/2, H - 10);
             ctx.stroke();
 
             ctx.beginPath();
             ctx.arc(W/2, H/2, 65, 0, Math.PI * 2);
             ctx.stroke();
 
-            ctx.strokeRect(0, H/4, 130, H/2);
-            ctx.strokeRect(W - 130, H/4, 130, H/2);
+            // Штрафные площади
+            ctx.strokeRect(10, H/2 - 100, 120, 200);
+            ctx.strokeRect(W - 130, H/2 - 100, 120, 200);
 
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(0, H/2 - 45, 8, 90);
-            ctx.fillRect(W - 8, H/2 - 45, 8, 90);
+            // Вратарские площади
+            ctx.strokeRect(10, H/2 - 50, 45, 100);
+            ctx.strokeRect(W - 55, H/2 - 50, 45, 100);
 
+            // Ворота
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(2, H/2 - 45, 8, 90);
+            ctx.fillRect(W - 10, H/2 - 45, 8, 90);
+
+            // Игроки
             players.forEach(p => {
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
                 ctx.fill();
                 ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2.5;
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
+                // Номер/ID
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(p.id, p.x, p.y + 4);
 
-                ctx.font = 'bold 11px sans-serif';
-                ctx.fillText(p.name, p.x, p.y - 20);
+                // Имя игрока
+                ctx.font = '11px sans-serif';
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillText(p.name, p.x, p.y - 18);
             });
 
+            // Мяч
             ctx.beginPath();
-            ctx.arc(ball.x, ball.y, 9, 0, Math.PI * 2);
-            ctx.fillStyle = '#fff';
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
             ctx.fill();
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = '#000000';
             ctx.lineWidth = 2;
             ctx.stroke();
+
+            // Пятна на мяче
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#000000';
+            ctx.fill();
         }
 
-        drawPitch();
-
-        let running = false;
-        function logMsg(msg) {
-            const el = document.getElementById('matchLog');
-            el.innerHTML += '<br>' + msg;
-            el.scrollTop = el.scrollHeight;
+        // Основной цикл requestAnimationFrame (60 FPS)
+        function gameLoop() {
+            updatePhysics();
+            render();
+            requestAnimationFrame(gameLoop);
         }
 
-        function startSimulation() {
-            if (running) return;
-            running = true;
-            logMsg("🔥 СТАРТОВЫЙ СВИСТОК! Матч начался.");
-
-            let ticker = 0;
-            const interval = setInterval(() => {
-                ticker++;
-                ball.x += (Math.random() - 0.5) * 22;
-                ball.y += (Math.random() - 0.5) * 16;
-                ball.x = Math.max(25, Math.min(W - 25, ball.x));
-                ball.y = Math.max(25, Math.min(H - 25, ball.y));
-
-                players.forEach(p => {
-                    p.x += (ball.x - p.x) * 0.05 + (Math.random() - 0.5) * 6;
-                    p.y += (ball.y - p.y) * 0.05 + (Math.random() - 0.5) * 6;
-                });
-
-                drawPitch();
-
-                if (ticker % 8 === 0) {
-                    const randomPlayer = players[Math.floor(Math.random() * players.length)];
-                    logMsg(`⏱️ ${Math.floor(ticker/3)}' | ⚡ ${randomPlayer.name} эффектно обыгрывает оппонента и обостряет атаку!`);
-                }
-
-                if (ticker >= 40) {
-                    clearInterval(interval);
-                    running = false;
-                    logMsg("🏆 ФИНАЛЬНЫЙ СВИСТОК! Топ матч звёзд завершён.");
-                }
-            }, 250);
-        }
+        resetPitch();
+        requestAnimationFrame(gameLoop);
     </script>
 </body>
 </html>
