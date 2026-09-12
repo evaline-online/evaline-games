@@ -31,7 +31,7 @@ OPENROUTER_API_KEY = ENV.get("OPENROUTER_API_KEY", "")
 # 10 Бесплатных моделей для 10 игроков
 ROSTER = [
     # КОМАНДА A: ЭВА Черноморск (Синие)
-    {"id": "A1", "name": "Яшин-Llama", "team": "A", "role": "Вратарь", "x": 5.0, "y": 30.0, "model": "meta-llama/llama-3.1-8b-instruct:free"},
+    {"id": "A1", "name": "Нойер-Llama", "team": "A", "role": "Вратарь", "x": 5.0, "y": 30.0, "model": "meta-llama/llama-3.1-8b-instruct:free"},
     {"id": "A2", "name": "Барези-Qwen", "team": "A", "role": "Левый защитник", "x": 25.0, "y": 18.0, "model": "qwen/qwen-2.5-72b-instruct:free"},
     {"id": "A3", "name": "Мальдини-Mistral", "team": "A", "role": "Правый защитник", "x": 25.0, "y": 42.0, "model": "mistralai/mistral-small-24b-instruct-2501:free"},
     {"id": "A4", "name": "Зидан-Llama70B", "team": "A", "role": "Полузащитник", "x": 45.0, "y": 30.0, "model": "meta-llama/llama-3.3-70b-instruct:free"},
