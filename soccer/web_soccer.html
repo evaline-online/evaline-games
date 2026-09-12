@@ -2,40 +2,62 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Evaline 2D LLM Soccer - 10 Бесплатных Моделей</title>
+    <title>Evaline 2D LLM Soccer 2026 - Топ Звёзды Мира</title>
     <style>
-        body { background: #1a1a24; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
-        h1 { margin-bottom: 5px; }
-        .match-info { color: #aaa; margin-bottom: 15px; }
-        #pitch-container { display: inline-block; position: relative; border: 3px solid #fff; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.6); }
-        canvas { background: #2e7d32; display: block; }
-        .scoreboard { display: flex; justify-content: center; gap: 40px; font-size: 24px; font-weight: bold; margin-bottom: 15px; }
-        .team-a { color: #42a5f5; }
-        .team-b { color: #ef5350; }
-        .log-box { width: 800px; max-width: 90%; height: 120px; margin: 15px auto; background: #111; border: 1px solid #333; border-radius: 4px; padding: 10px; text-align: left; font-family: monospace; font-size: 13px; overflow-y: auto; color: #76ff03; }
-        button { background: #ff9800; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; color: #000; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #ffa726; }
+        body { background: #12121a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; margin: 0; padding: 20px; }
+        h1 { margin-bottom: 4px; font-size: 26px; }
+        .match-info { color: #8bc34a; font-weight: bold; margin-bottom: 15px; }
+        #pitch-container { display: inline-block; position: relative; border: 4px solid #fff; border-radius: 12px; box-shadow: 0 0 25px rgba(0,0,0,0.8); }
+        canvas { background: #1b5e20; display: block; border-radius: 8px; }
+        .scoreboard { display: flex; justify-content: center; align-items: center; gap: 40px; font-size: 26px; font-weight: 800; margin-bottom: 15px; }
+        .team-a { color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,0.5); }
+        .team-b { color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,0.5); }
+        .time-box { background: #222; padding: 4px 16px; border-radius: 8px; border: 1px solid #444; font-size: 20px; }
+        .log-box { width: 840px; max-width: 95%; height: 140px; margin: 15px auto; background: #0a0a0f; border: 1px solid #333; border-radius: 6px; padding: 12px; text-align: left; font-family: monospace; font-size: 13px; overflow-y: auto; color: #4ade80; line-height: 1.5; }
+        button { background: #f59e0b; border: none; padding: 12px 28px; font-size: 17px; font-weight: bold; color: #000; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #fbbf24; transform: scale(1.03); }
+        .legend-table { display: flex; justify-content: center; gap: 30px; margin-top: 15px; font-size: 13px; color: #ccc; }
+        .legend-col { text-align: left; background: #181824; padding: 10px 18px; border-radius: 8px; border: 1px solid #2a2a3c; }
     </style>
 </head>
 <body>
-    <h1>⚽ EVALINE 2D LLM SOCCER</h1>
-    <div class="match-info">10 Бесплатных Нейросетей в реальном матче 5 vs 5</div>
+    <h1>⚽ EVALINE 2D LLM SOCCER (СЕЗОН 2026)</h1>
+    <div class="match-info">10 Лучших футболистов планеты 2026 года под управлением 10 бесплатных нейросетей</div>
 
     <div class="scoreboard">
         <span class="team-a">🔵 Черноморск: <span id="scoreA">0</span></span>
-        <span>⏱️ <span id="matchTime">00:00</span></span>
+        <div class="time-box">⏱️ <span id="matchTime">00:00</span></div>
         <span class="team-b">🔴 Братислава: <span id="scoreB">0</span></span>
     </div>
 
     <div id="pitch-container">
-        <canvas id="pitch" width="800" height="480"></canvas>
+        <canvas id="pitch" width="840" height="500"></canvas>
     </div>
 
     <br><br>
-    <button onclick="startSimulation()">▶️ Запустить Симуляцию Матча</button>
+    <button onclick="startSimulation()">▶️ Запустить Матч Звёзд 2026</button>
 
     <div class="log-box" id="matchLog">
-        [Система] Игра готова к запуску. 10 LLM моделей ждут стартового свистка...
+        [Матч-центр 2026] Команды выходят на поле. Эрлинг Холанд и Килиан Мбаппе готовы к битве за суперкубок Evaline!
+    </div>
+
+    <div class="legend-table">
+        <div class="legend-col">
+            <strong style="color: #38bdf8;">🔵 Черноморск (Завод ЭВА):</strong><br>
+            • GK: Тибо Куртуа (Llama 3.1 8B)<br>
+            • DEF: Вирджил Ван Дейк (Qwen 2.5 72B)<br>
+            • DEF: Йошко Гвардиол (Mistral Small 24B)<br>
+            • MID: Родри (Llama 3.3 70B)<br>
+            • FWD: Эрлинг Холанд (Gemini 2.0 Flash)
+        </div>
+        <div class="legend-col">
+            <strong style="color: #f87171;">🔴 Братислава (Склад ЭВА):</strong><br>
+            • GK: Алиссон Бекер (DeepSeek Chat)<br>
+            • DEF: Антонио Рюдигер (Qwen 2.5 Coder 32B)<br>
+            • DEF: Вильям Салиба (Nemotron 70B)<br>
+            • MID: Джуд Беллингем (DeepSeek R1)<br>
+            • FWD: Килиан Мбаппе (Hermes 3 405B)
+        </div>
     </div>
 
     <script>
@@ -47,26 +69,24 @@
         let ball = { x: W/2, y: H/2, vx: 0, vy: 0 };
         let players = [
             // Команда A (Синие)
-            { id: 'A1', name: 'Нойер (Llama 8B)', team: 'A', role: 'GK', x: 40, y: H/2, color: '#1976d2' },
-            { id: 'A2', name: 'Барези (Qwen 72B)', team: 'A', role: 'DEF', x: 180, y: H/3, color: '#42a5f5' },
-            { id: 'A3', name: 'Мальдини (Mistral 24B)', team: 'A', role: 'DEF', x: 180, y: (2*H)/3, color: '#42a5f5' },
-            { id: 'A4', name: 'Зидан (Llama 70B)', team: 'A', role: 'MID', x: 320, y: H/2, color: '#64b5f6' },
-            { id: 'A5', name: 'Шевченко (Gemini Flash)', team: 'A', role: 'FWD', x: 450, y: H/2, color: '#90caf9' },
+            { id: 'A1', name: 'Куртуа', role: 'GK', x: 45, y: H/2, color: '#0284c7' },
+            { id: 'A2', name: 'Ван Дейк', role: 'DEF', x: 200, y: H/3, color: '#38bdf8' },
+            { id: 'A3', name: 'Гвардиол', role: 'DEF', x: 200, y: (2*H)/3, color: '#38bdf8' },
+            { id: 'A4', name: 'Родри', role: 'MID', x: 360, y: H/2, color: '#0ea5e9' },
+            { id: 'A5', name: 'Холанд', role: 'FWD', x: 500, y: H/2, color: '#7dd3fc' },
 
             // Команда B (Красные)
-            { id: 'B1', name: 'Буффон (DeepSeek)', team: 'B', role: 'GK', x: W - 40, y: H/2, color: '#c62828' },
-            { id: 'B2', name: 'Рамос (Qwen Coder)', team: 'B', role: 'DEF', x: W - 180, y: H/3, color: '#ef5350' },
-            { id: 'B3', name: 'Пуйоль (Nemotron)', team: 'B', role: 'DEF', x: W - 180, y: (2*H)/3, color: '#ef5350' },
-            { id: 'B4', name: 'Хави (DeepSeek R1)', team: 'B', role: 'MID', x: W - 320, y: H/2, color: '#e57373' },
-            { id: 'B5', name: 'Роналдо (Hermes 405B)', team: 'B', role: 'FWD', x: W - 450, y: H/2, color: '#ef9a9a' }
+            { id: 'B1', name: 'Алиссон', role: 'GK', x: W - 45, y: H/2, color: '#b91c1c' },
+            { id: 'B2', name: 'Рюдигер', role: 'DEF', x: W - 200, y: H/3, color: '#f87171' },
+            { id: 'B3', name: 'Салиба', role: 'DEF', x: W - 200, y: (2*H)/3, color: '#f87171' },
+            { id: 'B4', name: 'Беллингем', role: 'MID', x: W - 360, y: H/2, color: '#ef4444' },
+            { id: 'B5', name: 'Мбаппе', role: 'FWD', x: W - 500, y: H/2, color: '#fca5a5' }
         ];
 
         function drawPitch() {
-            // Трава
-            ctx.fillStyle = '#2e7d32';
+            ctx.fillStyle = '#1b5e20';
             ctx.fillRect(0, 0, W, H);
 
-            // Разметка
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
             ctx.lineWidth = 3;
 
@@ -77,26 +97,26 @@
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.arc(W/2, H/2, 60, 0, Math.PI * 2);
+            ctx.arc(W/2, H/2, 65, 0, Math.PI * 2);
             ctx.stroke();
 
             // Штрафные площади
-            ctx.strokeRect(0, H/4, 120, H/2);
-            ctx.strokeRect(W - 120, H/4, 120, H/2);
+            ctx.strokeRect(0, H/4, 130, H/2);
+            ctx.strokeRect(W - 130, H/4, 130, H/2);
 
             // Ворота
             ctx.fillStyle = '#fff';
-            ctx.fillRect(0, H/2 - 40, 8, 80);
-            ctx.fillRect(W - 8, H/2 - 40, 8, 80);
+            ctx.fillRect(0, H/2 - 45, 8, 90);
+            ctx.fillRect(W - 8, H/2 - 45, 8, 90);
 
             // Игроки
             players.forEach(p => {
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
                 ctx.fillStyle = p.color;
                 ctx.fill();
                 ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 2.5;
                 ctx.stroke();
 
                 ctx.fillStyle = '#fff';
@@ -104,13 +124,13 @@
                 ctx.textAlign = 'center';
                 ctx.fillText(p.id, p.x, p.y + 4);
 
-                ctx.font = '10px sans-serif';
-                ctx.fillText(p.role, p.x, p.y - 18);
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText(p.name, p.x, p.y - 20);
             });
 
             // Мяч
             ctx.beginPath();
-            ctx.arc(ball.x, ball.y, 8, 0, Math.PI * 2);
+            ctx.arc(ball.x, ball.y, 9, 0, Math.PI * 2);
             ctx.fillStyle = '#fff';
             ctx.fill();
             ctx.strokeStyle = '#000';
@@ -130,36 +150,34 @@
         function startSimulation() {
             if (running) return;
             running = true;
-            logMsg("🔔 МАТЧ НАЧАЛСЯ! Мяч разыгран в центре поля.");
+            logMsg("🔥 СТАРТОВЫЙ СВИСТОК! Сезон 2026 открыт.");
 
             let ticker = 0;
             const interval = setInterval(() => {
                 ticker++;
-                // Имитация физики и перемещений
-                ball.x += (Math.random() - 0.5) * 20;
-                ball.y += (Math.random() - 0.5) * 15;
-                ball.x = Math.max(20, Math.min(W - 20, ball.x));
-                ball.y = Math.max(20, Math.min(H - 20, ball.y));
+                ball.x += (Math.random() - 0.5) * 22;
+                ball.y += (Math.random() - 0.5) * 16;
+                ball.x = Math.max(25, Math.min(W - 25, ball.x));
+                ball.y = Math.max(25, Math.min(H - 25, ball.y));
 
-                // Игроки подтягиваются к мячу
                 players.forEach(p => {
-                    p.x += (ball.x - p.x) * 0.05 + (Math.random() - 0.5) * 5;
-                    p.y += (ball.y - p.y) * 0.05 + (Math.random() - 0.5) * 5;
+                    p.x += (ball.x - p.x) * 0.05 + (Math.random() - 0.5) * 6;
+                    p.y += (ball.y - p.y) * 0.05 + (Math.random() - 0.5) * 6;
                 });
 
                 drawPitch();
 
-                if (ticker % 10 === 0) {
+                if (ticker % 8 === 0) {
                     const randomPlayer = players[Math.floor(Math.random() * players.length)];
-                    logMsg(`⏱️ ${Math.floor(ticker/5)}' | ${randomPlayer.name} выполняет отбор и делает точную передачу на ход!`);
+                    logMsg(`⏱️ ${Math.floor(ticker/3)}' | ⚡ ${randomPlayer.name} эффектно обыгрывает оппонента и обостряет атаку!`);
                 }
 
-                if (ticker >= 50) {
+                if (ticker >= 40) {
                     clearInterval(interval);
                     running = false;
-                    logMsg("🏁 МАТЧ ОКОНЧЕН! Свисток арбитра. Игроки обмениваются рукопожатиями.");
+                    logMsg("🏆 ФИНАЛЬНЫЙ СВИСТОК! Топ матч звёзд 2026 года завершён.");
                 }
-            }, 200);
+            }, 250);
         }
     </script>
 </body>
